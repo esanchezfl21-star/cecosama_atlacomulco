@@ -609,6 +609,45 @@ table.esEco tr.esTotal td{font-weight:700;background:#FAF7F2}
 .doc.esDoc .nocorte{page-break-inside:avoid;break-inside:avoid}
 @media print{ .doc.esDoc .esSecc{background:#9F2241!important;-webkit-print-color-adjust:exact;print-color-adjust:exact} }
 
+/* --- PRECONSULTA (Secretaría de Salud / CONASAMA / CECOSAMA Atlacomulco) --- */
+.doc.pcDoc{font-family:Arial,Helvetica,sans-serif;color:#000;font-size:8.4pt;line-height:1.28}
+.doc.pcDoc .pcHoja{position:relative;display:flex;flex-direction:column;min-height:257mm}
+.doc.pcDoc .pcSalto{break-before:page;page-break-before:always}
+.doc.pcDoc .pcTit{text-align:center;font-weight:700;font-size:12pt;margin:0 0 2.4mm;letter-spacing:.03em}
+.doc.pcDoc .pcMetaRow{display:flex;justify-content:flex-end;margin-bottom:1.8mm}
+.doc.pcDoc .pcMeta{display:flex;align-items:flex-end;gap:1.4mm;font-size:8.6pt}
+.doc.pcDoc .pcMeta b{white-space:nowrap;font-weight:700}
+.doc.pcDoc .pcR{display:flex;align-items:flex-end;gap:1.4mm;margin:1.6mm 0;flex-wrap:wrap}
+.doc.pcDoc .pcR b{white-space:nowrap;font-weight:700}
+.doc.pcDoc .pcV{flex:1;border-bottom:.6pt solid #000;font-family:var(--mono);font-size:8.6pt;
+ min-height:3.8mm;padding:0 1mm .3mm;overflow-wrap:break-word}
+.doc.pcDoc .pcV.w20{flex:0 0 16mm}.doc.pcDoc .pcV.w26{flex:0 0 26mm}.doc.pcDoc .pcV.w34{flex:0 0 34mm}
+.doc.pcDoc .pcCaja{display:inline-flex;align-items:center;gap:1.2mm;margin-right:4mm;font-size:8.6pt;white-space:nowrap}
+.doc.pcDoc .pcCb{display:inline-block;width:3.4mm;height:3.4mm;border:.8pt solid #000;text-align:center;
+ line-height:3.2mm;font-size:6.8pt;font-weight:800;vertical-align:middle;flex:none}
+.doc.pcDoc .pcSub{font-weight:700;font-size:9pt;margin:2.6mm 0 1mm;text-transform:uppercase;letter-spacing:.02em}
+.doc.pcDoc table.pc{width:100%;border-collapse:collapse;margin:0 0 2.2mm;table-layout:fixed}
+.doc.pcDoc table.pc th,.doc.pcDoc table.pc td{border:.6pt solid #000;padding:.9mm 1.2mm;vertical-align:middle;font-size:7.8pt}
+.doc.pcDoc table.pc th{background:#EFEFEF;font-weight:700;font-size:7.2pt;text-align:center}
+.doc.pcDoc table.pc td.pcDato{font-family:var(--mono);height:5mm}
+.doc.pcDoc table.pc.sm th.pcColSint{width:40%;text-align:left}
+.doc.pcDoc table.pc.sm th.pcColSev{width:15%}
+.doc.pcDoc table.pc.sm td.pcSint{text-align:left;font-size:7.6pt}
+.doc.pcDoc table.pc.sm td.pcSev{text-align:center;padding:1.3mm 1.2mm}
+.doc.pcDoc table.pc.sm td.pcSev span{margin:0 auto}
+.doc.pcDoc .pcObs{margin-top:1mm}
+.doc.pcDoc .pcTxtBloque{border:.6pt solid #000;border-radius:1.5mm;min-height:70mm;padding:2.4mm 3mm;
+ font-family:var(--mono);font-size:8.6pt;line-height:1.6;white-space:pre-wrap;overflow-wrap:break-word;
+ text-align:justify;text-justify:inter-word}
+.doc.pcDoc .pcFirmaBloque{margin-top:10mm}
+.doc.pcDoc .pcPie{text-align:center;font-size:8pt;font-weight:600;margin-top:auto;padding-top:6mm}
+@media print{
+ .doc.pcDoc{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ .doc.pcDoc table.pc th{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ .doc.pcDoc table.pc tr{page-break-inside:avoid;break-inside:avoid}
+ .doc.pcDoc .pcR{page-break-inside:avoid;break-inside:avoid}
+}
+
 </style>
 </head>
 <body>
@@ -737,6 +776,14 @@ const FI_TIPOTEL=['Casa','Oficina','Recados','Familiar'];
 const FI_SINO=['SI','NO'];
 const FI_REFERIDO='Familia, iniciativa propia, trabajo, escuela, Centro de Orientación Telefónica, instancias de procuración de justicia, Servicios de salud (IMSS, ISSSTE, CIJ, CISAME) establecimientos especializados en adicciones u otras formas de conocimiento de la UNEME-CAPA.';
 const FI_PARENTESCO='a) Padre; b) Madre; c) Tutor; d) Esposo (a) o Compañero (a); e) Hermano (a); f) Hijo (a); g) Abuelo (a); h) Tío (a); i) Sobrino (a); j) Primo (a); k) Cuñado (a); l) Amigo (a); m) Vecino (a); n) Compañero (a) de trabajo; ñ) Representante de organización, dependencia o institución.';
+
+/* ===== PRECONSULTA ===== */
+const PC_VIA=['1. Oral','2. Inyectada','3. Fumada','4. Inhalada','5. Otras'];
+const PC_SEVERIDAD=['Poco o nada','Más o menos','Moderadamente','Severamente'];
+const PC_SINTOMAS=['Miedo a que pase lo peor','Opresión en el pecho o latidos acelerados',
+ 'Tristeza persistente o estado de ánimo depresivo/ansiedad','Pérdida de interés o placer en actividades que normalmente eran placenteras',
+ 'Poca energía, fatiga, problemas de sueño','Pensamientos, planes o actos de autolesión o suicidio, actuales o pasados'];
+const PC_GENERO=['Masculino','Femenino','No binario','Otro'];
 const FI_CONTACTOS=[['c1','1er. Contacto'],['c2','2do. Contacto'],['c3','3er. Contacto']];
 /* La ficha oficial se imprime en UNA hoja carta con un solo contacto.
    Subir este número reactiva los contactos 2 y 3 sin tocar nada más. */
@@ -787,6 +834,7 @@ const FORMATOS={
  lab:{nom:'Laboratorio',cve:'IB/UAS/1/F/0014',memb:null,titulo:null},
  receta:{nom:'Receta médica',cve:'IB/UAS/1/F/0013',memb:null,titulo:null},
  entrevista:{nom:'Entrevista exploratoria',cve:'',memb:null,titulo:null},
+ preconsulta:{nom:'Preconsulta',cve:'',memb:null,titulo:null},
  consent:{nom:'Consentimiento informado',cve:'',memb:null,titulo:null},
  es:{nom:'Estudio social',cve:'',memb:null,titulo:null}
 };
@@ -1361,6 +1409,80 @@ function panel(k){
   ${areaTxt('ee_plan','12. Plan de tratamiento (Programa de Intervención)','Obligatoria.',95)}
   ${areaTxt('ee_recom','13. Recomendaciones a la persona y/o a su familia','Obligatoria.',110)}
   <fieldset><legend>Próxima cita</legend><input type="date" id="ee_cita"></fieldset>`;
+ }
+
+ if(k==='preconsulta'){
+  const T=(id,l,at)=>`<div><label for="${id}">${l}</label><input id="${id}"${at||''}></div>`;
+  const SL=(id,l,o)=>`<div><label for="${id}">${l}</label><select id="${id}"><option value=""></option>${o.map(x=>`<option>${x}</option>`).join('')}</select></div>`;
+  const auto=`oninput="this.style.height='';this.style.height=this.scrollHeight+'px'"`;
+  const A=(id,l,alto)=>`<div><label for="${id}">${l}</label><textarea id="${id}" style="min-height:${alto||64}px" ${auto}></textarea></div>`;
+  const PAR=FI_PARENTESCO.split(';').map(s=>s.trim().replace(/^[a-zñ]\)\s*/,'').replace(/\.$/,'')).filter(Boolean);
+  const susFila=i=>`<tr><td class="rot">${i}</td>
+   <td><input id="pc_sus${i}_nom"></td>
+   <td>${(()=>{const o=PC_VIA.map(x=>`<option>${x}</option>`).join('');return `<select id="pc_sus${i}_via"><option value=""></option>${o}</select>`;})()}</td>
+   <td><input id="pc_sus${i}_frec" placeholder="frecuencia y cantidad"></td></tr>`;
+  const susFilas=[1,2,3,4,5].map(susFila).join('');
+  const smFila=(i,t)=>`<tr><td class="rot">${t}</td>${PC_SEVERIDAD.map((s,j)=>
+   `<td style="text-align:center"><input type="radio" name="pc_sm_${i}" id="pc_sm_${i}_${j}" value="${j}" style="width:auto" title="${s}"></td>`).join('')}</tr>`;
+  const smFilas=PC_SINTOMAS.map((t,i)=>smFila(i,t)).join('');
+  return `
+  <fieldset><legend>Preconsulta — identificación</legend>
+   <p class="pista">Nombre, apellidos, fecha de nacimiento (con cálculo automático de edad), edad, sexo, teléfono, fecha y número de expediente se toman de la ficha del paciente (arriba). Aquí sólo se completan los campos propios de la Preconsulta.</p>
+   <div class="g2">
+    ${T('pc_folio','Folio de preconsulta','  class="mono"')}
+    ${T('pc_domicilio','Dirección (calle, número, colonia, municipio, C.P.)')}
+   </div>
+   <div class="g3">
+    ${SL('pc_genero','Género',PC_GENERO)}
+    ${T('pc_genero_otro','Especificar "Otro" (si aplica)')}
+    ${SL('pc_edocivil','Estado civil',['Soltero (a)','Casado (a)','Unión libre','Separado (a)','Divorciado (a)','Viudo (a)'])}
+   </div>
+   <div class="g3">
+    ${T('pc_escolaridad','Escolaridad')}
+    ${T('pc_ocupacion','Ocupación')}
+    ${T('pc_familiar','Familiar responsable')}
+   </div>
+   <div class="g2">
+    ${SL('pc_parentesco','Parentesco',PAR)}
+   </div>
+   ${A('pc_motivo','Motivo de consulta',60)}
+  </fieldset>
+
+  <fieldset><legend>Consumo de sustancias adictivas</legend>
+   <p class="pista">Forma de consumo: 1. Oral · 2. Inyectada · 3. Fumada · 4. Inhalada · 5. Otras. Frecuencia y cantidad de consumo durante los últimos 90 días.</p>
+   <table class="cap">
+    <tr><th></th><th>Sustancias de consumo</th><th>Forma de consumo</th><th>Frecuencia y cantidad (últimos 90 días)</th></tr>
+    ${susFilas}
+   </table>
+  </fieldset>
+
+  <fieldset><legend>Salud mental — síntomas durante el último mes</legend>
+   <table class="cap">
+    <tr><th style="text-align:left">Síntoma</th>${PC_SEVERIDAD.map(s=>`<th>${s}</th>`).join('')}</tr>
+    ${smFilas}
+   </table>
+  </fieldset>
+
+  <fieldset><legend>Impresión y observaciones</legend>
+   ${A('pc_prediag','Pre diagnóstico',60)}
+   ${A('pc_obs1','Observaciones',60)}
+  </fieldset>
+
+  <fieldset><legend>Página 2 — Tipo de atención</legend>
+   <div class="g2">
+    <div><label>Tipo de atención</label>
+     <select id="pc_tipoatencion"><option value=""></option><option>Atención Interna</option><option>Atención Externa</option></select></div>
+    ${T('pc_fecha1cita','Fecha de 1ª cita','  type="date"')}
+   </div>
+   <div class="g2">
+    ${T('pc_tratamiento','Tratamiento sugerido (atención interna)')}
+    ${T('pc_unidadrefiere','Unidad a la que se refiere (atención externa)')}
+   </div>
+   <div><label>Se otorgó consejo breve</label>
+    <select id="pc_consejobreve"><option value=""></option><option>SÍ</option><option>NO</option></select></div>
+   ${A('pc_obs2','Observaciones',110)}
+   <p class="pista">El entrevistador (nombre y cédula profesional) se toma del "Profesional responsable" de la ficha del paciente, arriba.</p>
+  </fieldset>`;
  }
 
  if(k==='es'){
@@ -2522,11 +2644,116 @@ function construir(){
    <div class="ciPie">Este formato se elaboró de acuerdo a los artículos 4.2, 10.1, 10.1.1.8, 10.1.1.9, 10.1.2 D17, en materia de Consentimiento Informado y de Tratamiento para la Salud de la Norma Oficial Mexicana NOM-004-SSA3-2012. Para la Prevención, Tratamiento y Control de las Adicciones.</div>
    <div class="ciFol">1 de 1</div>`;
  }
+
+ else if(k==='preconsulta'){
+  const box=on=>`<span class="pcCb">${on?'X':''}</span>`;
+  const susFilaImp=i=>{const nom=v('pc_sus'+i+'_nom'),via=v('pc_sus'+i+'_via'),frec=v('pc_sus'+i+'_frec');
+   if(!nom&&!via&&!frec) return `<tr><td class="pcDato">&nbsp;</td><td class="pcDato">&nbsp;</td><td class="pcDato">&nbsp;</td></tr>`;
+   return `<tr><td class="pcDato">${esc(nom)}</td><td class="pcDato" style="text-align:center">${esc(via)}</td><td class="pcDato">${esc(frec)}</td></tr>`; };
+  const susFilasImp=[1,2,3,4,5].map(susFilaImp).join('');
+  const smFilaImp=(i,t)=>`<tr><td class="pcSint">${t}</td>${PC_SEVERIDAD.map((s,j)=>{
+    const e=$('pc_sm_'+i+'_'+j); return `<td class="pcSev">${box(e&&e.checked)}</td>`; }).join('')}</tr>`;
+  const smFilasImp=PC_SINTOMAS.map((t,i)=>smFilaImp(i,t)).join('');
+  const pie='<div class="pcPie">CENTRO COMUNITARIO DE SALUD MENTAL Y ADICCIONES ATLACOMULCO</div>';
+
+  /* ---------- Página 1 ---------- */
+  h+=`<div class="pcHoja">
+   <div class="giEnc">${instLock()}</div>
+   <div class="pcTit">PRECONSULTA</div>
+   <div class="pcMetaRow"><div>
+    <div class="pcMeta"><b>FECHA:</b><span class="pcV w34">${esc(v('p_fecha'))}</span></div>
+    <div class="pcMeta" style="margin-top:1.2mm"><b>FOLIO DE PRECONSULTA:</b><span class="pcV w34">${esc(v('pc_folio'))}</span></div>
+   </div></div>
+
+   <div class="pcR"><b>Nombre:</b><span class="pcV">${esc(nombre())}</span></div>
+   <div class="pcR" style="margin-top:-1.4mm"><small style="flex:1;display:flex;justify-content:space-around;color:#333">
+     <span>Nombre(s)</span><span>Apellido Paterno</span><span>Apellido Materno</span></small></div>
+
+   <div class="pcR"><b>Dirección:</b><span class="pcV">${esc(v('pc_domicilio'))}</span></div>
+   <div class="pcR" style="margin-top:-1.4mm"><small style="flex:1;color:#333">Calle, Número, Colonia, Municipio, C.P.</small></div>
+
+   <div class="pcR"><b>Teléfono:</b><span class="pcV w34">${esc(v('p_tel'))}</span>&nbsp;&nbsp;<b>FN:</b><span class="pcV w26">${esc(v('p_nac'))}</span></div>
+
+   <div class="pcR">
+    <b>Sexo:</b>
+    <span class="pcCaja">${box(v('p_sexo')==='Hombre')} Hombre</span>
+    <span class="pcCaja">${box(v('p_sexo')==='Mujer')} Mujer</span>
+    &nbsp;&nbsp;<b>Género:</b>
+    ${PC_GENERO.slice(0,3).map(g=>`<span class="pcCaja">${box(v('pc_genero')===g)} ${g}</span>`).join('')}
+    <span class="pcCaja">${box(v('pc_genero')==='Otro')} Otro: <span class="pcV" style="min-width:18mm;display:inline-block">${esc(v('pc_genero_otro'))}</span></span>
+   </div>
+
+   <div class="pcR">
+    <b>Edad:</b><span class="pcV w20">${esc(v('p_edad'))}</span>
+    <b>Edo. Civil:</b><span class="pcV w26">${esc(v('pc_edocivil'))}</span>
+    <b>Escolaridad:</b><span class="pcV w26">${esc(v('pc_escolaridad'))}</span>
+    <b>Ocupación:</b><span class="pcV w26">${esc(v('pc_ocupacion'))}</span>
+   </div>
+
+   <div class="pcR">
+    <b>Familiar responsable:</b><span class="pcV">${esc(v('pc_familiar'))}</span>
+    <b>Parentesco:</b><span class="pcV w34">${esc(v('pc_parentesco'))}</span>
+   </div>
+
+   <div class="pcR"><b>Motivo de Consulta:</b><span class="pcV">${esc(v('pc_motivo'))}</span></div>
+
+   <div class="pcSub">Consumo de sustancias adictivas</div>
+   <table class="pc">
+    <tr><th rowspan="2" style="width:38%">Sustancias de consumo</th><th style="width:24%">Forma de consumo</th><th style="width:38%">Frecuencia y cantidad de consumo (durante los últimos 90 días)</th></tr>
+    <tr><td style="font-size:6.4pt;text-align:center">1. Oral&nbsp; 2. Inyectada&nbsp; 3. Fumada&nbsp; 4. Inhalada&nbsp; 5. Otras</td><td>&nbsp;</td></tr>
+    ${susFilasImp}
+   </table>
+
+   <div class="pcSub">Salud mental</div>
+   <table class="pc sm">
+    <tr><th class="pcColSint">Indique si ha presentado alguno de los siguientes síntomas durante el <b>último mes</b>:</th>
+     ${PC_SEVERIDAD.map(s=>`<th class="pcColSev">${s}</th>`).join('')}</tr>
+    ${smFilasImp}
+   </table>
+
+   <div class="pcR"><b>Pre Diagnóstico:</b><span class="pcV">${esc(v('pc_prediag'))}</span></div>
+   <div class="pcR"><b>Observaciones:</b><span class="pcV">${esc(v('pc_obs1'))}</span></div>
+
+   ${pie}
+  </div>
+
+  <div class="pcHoja pcSalto">
+   <div class="giEnc">${instLock()}</div>
+   <div class="pcSub" style="margin-top:0">Tipo de atención:</div>
+   <div class="pcR">
+    <span class="pcCaja">${box(v('pc_tipoatencion')==='Atención Interna')} <b>ATENCIÓN INTERNA</b></span>
+    &nbsp;&nbsp;<b>Fecha de 1ª cita:</b><span class="pcV w34">${esc(v('pc_fecha1cita'))}</span>
+   </div>
+   <div class="pcR"><b>Tratamiento sugerido:</b><span class="pcV">${esc(v('pc_tratamiento'))}</span></div>
+   <div class="pcR" style="margin-top:3mm">
+    <span class="pcCaja">${box(v('pc_tipoatencion')==='Atención Externa')} <b>ATENCIÓN EXTERNA</b></span>
+    &nbsp;&nbsp;<b>Unidad a la que se refiere:</b><span class="pcV">${esc(v('pc_unidadrefiere'))}</span>
+   </div>
+
+   <div class="pcR" style="margin-top:3mm">
+    <b>SE OTORGÓ CONSEJO BREVE:</b>
+    <span class="pcCaja">SI ${box(v('pc_consejobreve')==='SÍ')}</span>
+    <span class="pcCaja">NO ${box(v('pc_consejobreve')==='NO')}</span>
+   </div>
+
+   <div class="pcObs">
+    <div class="pcSub" style="margin-top:3mm">Observaciones</div>
+    <div class="pcTxtBloque">${esc(v('pc_obs2'))||'&nbsp;'}</div>
+   </div>
+
+   <div class="pcFirmaBloque">
+    <div class="pcR"><b>Nombre del Entrevistador:</b><span class="pcV">${esc(v('p_prof'))}</span></div>
+    <div class="pcR"><b>Cédula Profesional:</b><span class="pcV w34">${esc(v('p_cedula'))}</span></div>
+   </div>
+
+   ${pie}
+  </div>`;
+ }
  $('doc').className='doc'+(k==='ref'?' refDoc':'')
    +(k==='imagen'?' igDoc':'')+(k==='lab'?' lbDoc':'')+(k==='receta'?' rcDoc':'')
    +(k==='notaMed'?' notaMedDoc':'')+(k==='notaPsi'?' notaPsiDoc':'')
    +(k==='entrevista'?' eeDoc':'')+(k==='consent'?' ciDoc':'')+(k==='hc'?' hcDoc':'')+(k==='fi'?' fiDoc':'')
-   +(k==='es'?' esDoc':'');
+   +(k==='es'?' esDoc':'')+(k==='preconsulta'?' pcDoc':'');
  $('doc').innerHTML=h;
  if(k==='ref') ajustarReferencia();
  else if(k==='fi') ajustarFicha();
@@ -2845,6 +3072,7 @@ function copiarSINBA(){
   add('Laboratorio',m.join(', '));add('Dx presuntivo',v('lb_dx'));}
  else if(actual==='receta'){const m=[];[1,2,3].forEach(i=>{if(v('rc_med'+i))m.push(v('rc_med'+i)+(v('rc_modo'+i)?' — '+v('rc_modo'+i):''));});add('Receta',m.join(' | '));}
  else if(actual==='entrevista'){add('Motivo declarado',v('ee_motivo'));add('Sustancia de impacto',v('ee_impacto'));add('Impresión dx CIE-10',[v('ee_cie_codigo'),v('ee_cie_dx')].filter(Boolean).join(' '));add('Plan',v('ee_plan'));}
+ else if(actual==='preconsulta'){add('Motivo de consulta',v('pc_motivo'));add('Pre diagnóstico',v('pc_prediag'));add('Tipo de atención',v('pc_tipoatencion'));add('Tratamiento sugerido',v('pc_tratamiento')||v('pc_unidadrefiere'));}
  else if(actual==='hc'){add('Motivo',v('hc_motivo')||v('hc_motivo1'));add('Padecimiento actual',v('hc_padecimiento'));add('Impresión diagnóstica',v('hc_impresion'));add('Plan',v('hc_plan'));}
  else if(actual==='fi'){add('Referido por',v('fi_referido'));add('Motivo de consulta',v('fi_motivo'));add('Ocupación',v('fi_ocupacion'));add('Escolaridad',v('fi_escolaridad'));add('Diagnóstico',v('fi_diagnostico'));}
  else if(actual==='consent'){add('Consentimiento informado',nombre()+(v('p_fecha')?' — '+v('p_fecha'):''));}
