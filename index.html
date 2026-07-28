@@ -71,6 +71,10 @@ display:flex;gap:8px;flex-wrap:wrap;margin-top:5px;z-index:10}
   .nocorte{page-break-inside:avoid}
 }
 .doc{--nf:1}
+/* Reserva del membrete válida también fuera de @media print, para que la
+   medición fuera de pantalla de ajustarUnaHoja() la vea igual que la
+   impresión real (ver nota arriba). Sólo afecta a estos dos formatos. */
+.doc.notaMedDoc,.doc.notaPsiDoc{padding-top:var(--memb)}
 .doc .tituloDoc{text-align:center;font-size:calc(12pt*var(--nf));font-weight:700;margin:0 0 2.5mm;letter-spacing:.04em}
 .doc .lineaCampo{font-size:calc(9pt*var(--nf));margin-bottom:1.2mm}
 .doc .dato{font-family:var(--mono);font-size:calc(8.6pt*var(--nf))}
@@ -107,6 +111,11 @@ display:flex;gap:8px;flex-wrap:wrap;margin-top:5px;z-index:10}
 .doc .fr{page-break-after:avoid;break-after:avoid}
 .doc .frRef{page-break-after:avoid;break-after:avoid}
 .doc .marcoOf{page-break-inside:avoid;break-inside:avoid}
+/* La columna de signos vitales de la nota (izquierda) tampoco se parte: es
+   una lista corta y compacta, cortarla a la mitad se vería peor que moverla
+   entera a la hoja siguiente. */
+.doc .rejilla>.izq{page-break-inside:avoid;break-inside:avoid}
+.doc .bloque{page-break-inside:avoid;break-inside:avoid}
 /* ===== Colores tomados del formato original IB/UAS/1/F/0005 ===== */
 :root{--ofOlivo:#B99E47;--ofVerde:#004C00;--ofGris:#A6A6A6;--ofRojo:#EE0000;--ofBeige:#DDC9A3}
 .doc.hcDoc table.of td,.doc.hcDoc table.of th{border:.6pt solid var(--ofOlivo)}
@@ -358,8 +367,8 @@ display:flex;gap:8px;flex-wrap:wrap;margin-top:5px;z-index:10}
 .doc.hcDoc{font-family:Arial,Helvetica,sans-serif;color:#000;font-size:8.6pt;line-height:1.3}
 /* Número de expediente escrito sobre la línea del membrete oficial: al ser
    fijo se repite en todas las hojas, igual que en el formato impreso. */
-.doc.hcDoc .hcExp{position:fixed;top:4.1mm;left:0;right:0;z-index:6;text-align:right;
- padding-right:23mm;font-family:var(--mono);font-size:9pt;line-height:1}
+.doc.hcDoc .hcExp{position:fixed;top:21.6mm;left:129.5mm;width:54mm;z-index:6;
+ text-align:left;font-family:var(--mono);font-size:9pt;line-height:1}
 .doc.hcDoc .hcTit{text-align:center;font-size:13pt;font-weight:700;margin:0 0 2.4mm}
 .doc.hcDoc .hcRom{font-weight:700;font-size:8.8pt;margin-bottom:1.8mm;letter-spacing:.02em}
 .doc.hcDoc .hcRom span{display:inline-block;width:10mm}
@@ -1176,8 +1185,8 @@ function panel(k){
    ${T('hc_sr_andro','Andropausia')}
   </fieldset>
 
-  <fieldset><legend>Motivo de la consulta y padecimiento actual</legend>
-   ${A('hc_motivo','Motivo de la consulta',90)}
+  <fieldset><legend>Padecimiento actual</legend>
+   <p class="pista">El motivo de consulta ya se captura arriba, en la Ficha de identificación.</p>
    ${A('hc_padecimiento','Padecimiento actual',150)}
   </fieldset>
 
@@ -1800,8 +1809,8 @@ function construir(){
    ${bloq('Plan de tratamiento:',v('n_plan'),1)}
    ${bloq('Pronóstico:',v('n_pronostico'),1)}
    ${bloq('Próxima cita:',fechaLarga(v('n_cita')),1)}</div></div></div>`;
-  h+=firmas(['Nombre y firma del psicólogo/psicóloga','Cédula profesional']);
-  h+=`<div style="text-align:center;font-size:8pt">${esc(v('p_prof'))} &nbsp;&nbsp; ${esc(v('p_cedula'))}</div>`;
+  h+=firmas(['Nombre y firma del psicólogo/psicóloga, Cédula profesional']);
+  h+=`<div style="text-align:center;font-size:8pt">${esc(v('p_prof'))}${v('p_cedula')?' · Cédula '+esc(v('p_cedula')):''}</div>`;
  }
 
  else if(k==='notaMed'){
@@ -2335,8 +2344,9 @@ function construir(){
     <div class="hcLin">No. de parejas sexuales: ${SB(v('hc_sr_parejas_h'),'s')} &nbsp; Andropausia: ${SB(v('hc_sr_andro'),'l')}</div>
    </div>`;
 
-  /* ---------- MOTIVO DE LA CONSULTA · PADECIMIENTO ACTUAL ---------- */
-  h+=BLOQUE('Motivo de la consulta:',v('hc_motivo'),'alto');
+  /* ---------- PADECIMIENTO ACTUAL ----------
+     El motivo de consulta ya se imprimió en la Ficha de identificación
+     (hc_motivo1); este bloque duplicado se retiró para no repetirlo. */
   h+=BLOQUE('Padecimiento actual:',v('hc_padecimiento'),'alto');
 
   h+=`</section>`;
@@ -2783,11 +2793,21 @@ function ajustarHistoria(){
   let f=1; sec.style.setProperty('--hcf','1');
   while(sec.scrollHeight>ALTO+TOL && f>0.80){ f-=0.02; sec.style.setProperty('--hcf',f.toFixed(2)); }
   if(f<1) compactadas++;
-  if(sec.scrollHeight>ALTO+TOL) largas.push(sec.dataset.hcpag);
+  if(sec.scrollHeight>ALTO+TOL){
+   largas.push(sec.dataset.hcpag);
+   // Ni al mínimo cabe en una sola hoja: en vez de forzar un salto que deja
+   // la siguiente hoja casi en blanco (con solo el sobrante de esta), se
+   // quita su salto de página y su contenido continúa fluyendo justo
+   // después, en la misma hoja física. Nada se recorta ni se parte a la
+   // mitad: cada caja, tabla y renglón conserva su protección de no-corte;
+   // sólo cambia DÓNDE empieza la hoja siguiente.
+   const sig=sec.nextElementSibling;
+   if(sig && sig.classList.contains('hcPag')) sig.classList.remove('hcSalto');
+  }
  });
  doc.setAttribute('style',prev);
  if(largas.length) aviso('El texto capturado excede el espacio de la hoja '+largas.join(' y ')+
-   ': continuará en la siguiente sin recortarse.',true);
+   ': continúa en la misma hoja sin recortarse ni dejar espacio en blanco.',true);
  else if(compactadas) aviso('Historia clínica ajustada: '+compactadas+
    (compactadas===1?' hoja se compactó':' hojas se compactaron')+' para respetar los cortes del formato oficial.');
 }
@@ -2823,13 +2843,33 @@ function ajustarUnaHoja(){
  const prev=doc.getAttribute('style')||'';
  doc.setAttribute('style','display:block;position:absolute;left:-10000px;top:0;width:748px');
  const ALTO=988; // 261.4 mm (carta 279.4 mm − 18 mm de margen) a 96 ppp
+ const TOL=8;
  const av=doc.querySelector('.avisoNota'); if(av) av.remove();
+ // .rejilla es el recuadro reglado (columna de vitales + bloques de texto);
+ // se le quita cualquier estiramiento previo antes de volver a medir.
+ const rej=doc.querySelector('.marco .rejilla');
+ if(rej) rej.style.minHeight='';
 
  let f=1;
  const aplicar=()=>doc.style.setProperty('--nf',f.toFixed(3));
  aplicar();
- while(doc.scrollHeight>ALTO && f>0.82){ f-=0.02; aplicar(); }
+ while(doc.scrollHeight>ALTO+TOL && f>0.82){ f-=0.02; aplicar(); }
+ // Si sólo falta un poco —normalmente porque las firmas, que nunca se
+ // dividen, no alcanzan a entrar— se aprieta un poco más antes de aceptar
+ // una segunda hoja que quedaría casi en blanco con solo esas firmas.
+ if(doc.scrollHeight>ALTO+TOL && doc.scrollHeight-ALTO<120){
+  while(doc.scrollHeight>ALTO+TOL && f>0.74){ f-=0.02; aplicar(); }
+ }
  const paginas=Math.max(1,Math.ceil(doc.scrollHeight/ALTO));
+
+ // Si el texto capturado es corto y todo entra a tamaño completo, el
+ // recuadro reglado se estira para llenar la hoja —como en el formato
+ // oficial impreso en blanco, cuyo recuadro ocupa la hoja completa aunque
+ // no se haya escrito nada—, en vez de dejar un hueco antes de las firmas.
+ if(rej && f===1 && paginas<=1){
+  const libre=ALTO-doc.scrollHeight-16;
+  if(libre>15) rej.style.minHeight=(rej.scrollHeight+libre)+'px';
+ }
  doc.setAttribute('style',prev);
 
  if(f<1 && paginas<=1) aviso('Nota compactada al '+Math.round(f*100)+'% para caber en una hoja.');
@@ -3073,7 +3113,7 @@ function copiarSINBA(){
  else if(actual==='receta'){const m=[];[1,2,3].forEach(i=>{if(v('rc_med'+i))m.push(v('rc_med'+i)+(v('rc_modo'+i)?' — '+v('rc_modo'+i):''));});add('Receta',m.join(' | '));}
  else if(actual==='entrevista'){add('Motivo declarado',v('ee_motivo'));add('Sustancia de impacto',v('ee_impacto'));add('Impresión dx CIE-10',[v('ee_cie_codigo'),v('ee_cie_dx')].filter(Boolean).join(' '));add('Plan',v('ee_plan'));}
  else if(actual==='preconsulta'){add('Motivo de consulta',v('pc_motivo'));add('Pre diagnóstico',v('pc_prediag'));add('Tipo de atención',v('pc_tipoatencion'));add('Tratamiento sugerido',v('pc_tratamiento')||v('pc_unidadrefiere'));}
- else if(actual==='hc'){add('Motivo',v('hc_motivo')||v('hc_motivo1'));add('Padecimiento actual',v('hc_padecimiento'));add('Impresión diagnóstica',v('hc_impresion'));add('Plan',v('hc_plan'));}
+ else if(actual==='hc'){add('Motivo',v('hc_motivo1'));add('Padecimiento actual',v('hc_padecimiento'));add('Impresión diagnóstica',v('hc_impresion'));add('Plan',v('hc_plan'));}
  else if(actual==='fi'){add('Referido por',v('fi_referido'));add('Motivo de consulta',v('fi_motivo'));add('Ocupación',v('fi_ocupacion'));add('Escolaridad',v('fi_escolaridad'));add('Diagnóstico',v('fi_diagnostico'));}
  else if(actual==='consent'){add('Consentimiento informado',nombre()+(v('p_fecha')?' — '+v('p_fecha'):''));}
  const t=p.join(' | ').replace(/\s+/g,' ').trim();
@@ -3129,4 +3169,5 @@ $('p_fecha').value=new Date().toISOString().slice(0,10);
 irA('notaPsi');
 </script>
 </body>
+</html>
 </html>
