@@ -61,6 +61,8 @@ display:flex;gap:8px;flex-wrap:wrap;margin-top:5px;z-index:10}
 .btn.pri{background:var(--guinda);color:#fff}.btn.pri:hover{background:var(--guinda2)}
 .btn.suave{border-color:var(--linea);color:var(--gris);font-weight:500}
 .btn.suave:hover{background:var(--gris);border-color:var(--gris);color:#fff}
+.btn.peligro{border-color:#8a1f1f;color:#8a1f1f}
+.btn.peligro:hover{background:#8a1f1f;color:#fff}
 .aviso{font-size:12.5px;color:var(--ok);align-self:center;font-weight:600}
 .aviso.mal{color:var(--alerta)}
 
@@ -701,8 +703,8 @@ table.esEco tr.esTotal td{font-weight:700;background:#FAF7F2}
       <div><label for="p_tel">Teléfono</label><input id="p_tel" class="mono"></div>
     </div>
     <div class="g3">
-      <div><label for="p_unidad">Unidad de salud</label><input id="p_unidad" value="CECOSAMA Atlacomulco"></div>
-      <div><label for="p_clues">CLUES</label><input id="p_clues" class="mono"></div>
+      <div><label for="p_unidad">Unidad de salud</label><input id="p_unidad" value="Centro Comunitario de Salud Mental y Adicciones Atlacomulco"></div>
+      <div><label for="p_clues">CLUES</label><input id="p_clues" class="mono" value="MCIMB011216"></div>
       <div><label for="p_dom">Domicilio</label><input id="p_dom"></div>
     </div>
     <div class="g2">
@@ -720,6 +722,7 @@ table.esEco tr.esTotal td{font-weight:700;background:#FAF7F2}
     <button class="btn suave" onclick="document.getElementById('arch').click()">Abrir plantilla</button>
     <button class="btn suave" onclick="respaldarNota()">Guardar nota del paciente (respaldo)</button>
     <button class="btn suave" onclick="vaciar()">Vaciar formato actual</button>
+    <button class="btn peligro" onclick="vaciarTodo()">Borrar formulario completo</button>
     <input type="file" id="arch" accept=".json" hidden onchange="abrirPlantilla(event)">
     <span class="aviso" id="aviso"></span>
   </div>
@@ -795,7 +798,7 @@ const LAB_KEYS={}; let _lbN=0;
 LAB_COLS.forEach(col=>col.forEach(([,,items])=>items.forEach(t=>{LAB_KEYS[t]='lb_c_'+(_lbN++);})));
 
 /* ===== Catálogos de la Ficha de Identificación (UNEME-CECOSAMA) ===== */
-const FI_TIPOTEL=['Casa','Oficina','Recados','Familiar'];
+const FI_TIPOTEL=['Casa','Oficina','Recados','Familiar','Celular'];
 const FI_SINO=['SI','NO'];
 const FI_REFERIDO='Familia, iniciativa propia, trabajo, escuela, Centro de Orientación Telefónica, instancias de procuración de justicia, Servicios de salud (IMSS, ISSSTE, CIJ, CISAME) establecimientos especializados en adicciones u otras formas de conocimiento de la UNEME-CAPA.';
 const FI_PARENTESCO='a) Padre; b) Madre; c) Tutor; d) Esposo (a) o Compañero (a); e) Hermano (a); f) Hijo (a); g) Abuelo (a); h) Tío (a); i) Sobrino (a); j) Primo (a); k) Cuñado (a); l) Amigo (a); m) Vecino (a); n) Compañero (a) de trabajo; ñ) Representante de organización, dependencia o institución.';
@@ -839,6 +842,62 @@ const EE_TRATAMIENTOS=['a) Intento Propio','b) Juramentos','c) Grupo de Ayuda Mu
  'f) Tratamiento Médico','g)Tratamiento Psiquiátrico y/o psicológico','h)Tratamiento Ambulatorio en Adicciones y/o Salud mental',
  'i)Residencial (Internamiento)(anexo)','j) Programa de mantenimiento','k) Otros (especificar)'];
 const EE_PRONOSTICO=['Reservado','Favorable','Desfavorable'];
+/* ===== Catálogos adicionales tomados de las listas desplegables del Excel oficial ===== */
+const EE_SUSTANCIAS=['Alcohol','Tabaco','Marihuana','Metanfetamina','Cocaína','Inhalables'];
+const EE_IMPACTO=['Alcohol','Tabaco','Marihuana','Inhalables','Cocaína','Metanfetamina','Anfetamina','Alucinógenos'];
+const EE_SUSTANCIAS_TRAT=['Alcohol','Tabaco','Marihuana','Inhalables','Cocaína','Metanfetamina','Alucinógenos'];
+const EE_ESCALA10=['10','9','8','7','6','5','4','3','2','1'];
+const EE_CIE10_SUST=['F10.1','F10.2','F11.1','F11.2','F12.1','F12.2','F13.1','F13.2','F14.1','F14.2','F15.1','F15.2','F16.1','F16.2','F17.1','F17.2','F18.1','F18.2','F19.1','F19.2'];
+const EE_CIE10_SM=['F20.9','F31.9','F32.0','F32.1','F32.2','F32.9','F33.9','F40.9','F41.0','F41.1','F41.9','F42.9','F43.0','F43.1','F43.2','F45.9','F50.9','F60.9','F84.0','F90.0','F98.9'];
+const EE_CIE10_DX={
+ 'F10.1':'Trastornos mentales y del comportamiento debidos al uso de alcohol: uso nocivo',
+ 'F10.2':'Trastornos mentales y del comportamiento debidos al uso de alcohol: síndrome de dependencia',
+ 'F11.1':'Trastornos mentales y del comportamiento debidos al uso de opioides: uso nocivo',
+ 'F11.2':'Trastornos mentales y del comportamiento debidos al uso de opioides: síndrome de dependencia',
+ 'F12.1':'Trastornos mentales y del comportamiento debidos al uso de cannabinoides: uso nocivo',
+ 'F12.2':'Trastornos mentales y del comportamiento debidos al uso de cannabinoides: síndrome de dependencia',
+ 'F13.1':'Trastornos mentales y del comportamiento debidos al uso de sedantes o hipnóticos: uso nocivo',
+ 'F13.2':'Trastornos mentales y del comportamiento debidos al uso de sedantes o hipnóticos: síndrome de dependencia',
+ 'F14.1':'Trastornos mentales y del comportamiento debidos al uso de cocaína: uso nocivo',
+ 'F14.2':'Trastornos mentales y del comportamiento debidos al uso de cocaína: síndrome de dependencia',
+ 'F15.1':'Trastornos mentales y del comportamiento debidos al uso de otros estimulantes (incluida la cafeína): uso nocivo',
+ 'F15.2':'Trastornos mentales y del comportamiento debidos al uso de otros estimulantes (incluida la cafeína): síndrome de dependencia',
+ 'F16.1':'Trastornos mentales y del comportamiento debidos al uso de alucinógenos: uso nocivo',
+ 'F16.2':'Trastornos mentales y del comportamiento debidos al uso de alucinógenos: síndrome de dependencia',
+ 'F17.1':'Trastornos mentales y del comportamiento debidos al uso de tabaco: uso nocivo',
+ 'F17.2':'Trastornos mentales y del comportamiento debidos al uso de tabaco: síndrome de dependencia',
+ 'F18.1':'Trastornos mentales y del comportamiento debidos al uso de disolventes volátiles: uso nocivo',
+ 'F18.2':'Trastornos mentales y del comportamiento debidos al uso de disolventes volátiles: síndrome de dependencia',
+ 'F19.1':'Trastornos mentales y del comportamiento debidos al uso de múltiples drogas y de otras sustancias psicoactivas: uso nocivo',
+ 'F19.2':'Trastornos mentales y del comportamiento debidos al uso de múltiples drogas y de otras sustancias psicoactivas: síndrome de dependencia',
+ 'F20.9':'Esquizofrenia, no especificada',
+ 'F31.9':'Trastorno afectivo bipolar, no especificado',
+ 'F32.0':'Episodio depresivo leve',
+ 'F32.1':'Episodio depresivo moderado',
+ 'F32.2':'Episodio depresivo grave sin síntomas psicóticos',
+ 'F32.9':'Episodio depresivo, no especificado',
+ 'F33.9':'Trastorno depresivo recurrente, no especificado',
+ 'F40.9':'Trastorno de ansiedad fóbica, no especificado',
+ 'F41.0':'Trastorno de pánico (ansiedad paroxística episódica)',
+ 'F41.1':'Trastorno de ansiedad generalizada',
+ 'F41.9':'Trastorno de ansiedad, no especificado',
+ 'F42.9':'Trastorno obsesivo-compulsivo, no especificado',
+ 'F43.0':'Reacción a estrés agudo',
+ 'F43.1':'Trastorno de estrés postraumático',
+ 'F43.2':'Trastornos de adaptación',
+ 'F45.9':'Trastorno somatomorfo, no especificado',
+ 'F50.9':'Trastorno de la conducta alimentaria, no especificado',
+ 'F60.9':'Trastorno de la personalidad, no especificado',
+ 'F84.0':'Autismo infantil',
+ 'F90.0':'Trastorno de la actividad y de la atención (TDAH)',
+ 'F98.9':'Trastorno del comportamiento y de las emociones de comienzo habitual en la infancia y adolescencia, no especificado'
+};
+const EE_PROGRAMA=['Consejo breve','Detección temprana e intervención breve para bebedores problema','Intervención breve motivacional para fumadores','Intervención breve para adolescentes que comienzan el consumo de alcohol y otras drogas','Intervención para familiares de usuarios','Programa de prevención de recaídas','Programa de satisfactores cotidianos','Programa para padres de adolescentes en riesgo','Referencia','Tratamiento breve para usuarios de cocaína','Tratamiento breve para usuarios de marihuana','Atención inicial a condiciones de riesgo en salud mental','Atención del comportamiento infantil para la crianza positiva','Programa de tratamiento cognitivo conductual para personas usuarias de sustancias psicoactivas','Atención de depresión','Atención de ansiedad','Atención de comportamiento de autolesión y suicidio'];
+const EE_FP=['Voluntad','Mantenerse ocupado','Apoyo de personas','Actividad laboral','Apoyo familiar','Evitar lugares de consumo','Evitar Personas consumidoras'];
+const EE_FR=['Estado emocional','Problemas','Lugares de consumo','Invitaciones','Estar desocupado','Tentación/Ansiedad','Amistades de consumo'];
+const EE_APOYOFAM=['Esposo(a)','Padres','Padre','Madre','Abuelos','Tíos','Hermanos','Vecino','Tutor'];
+const EE_APARIENCIA=['Condiciones de higiene y aliño favorables','Consiente y orientado globalmente','Se muestra cooperador durante la entrevista','Lenguaje verbal fluido y coherente'];
+const EE_RECOM=['Orientación a familiares','Favorecer red de apoyo','Favorecer monitoreo parental','Grupo de ayuda mutua','Fortalecer red de apoyo','Mantener actividades cotidianas saludables'];
 /* mitad de la lista: reproduce las dos columnas impresas del formato oficial */
 const eeMitad=l=>Math.ceil(l.length/2);
 
@@ -878,6 +937,10 @@ function calcEdad(){ const n=v('p_nac'); if(!n)return; const d=new Date(n),h=new
 function aviso(t,mal){ const a=$('aviso'); a.textContent=t; a.className='aviso'+(mal?' mal':'');
  clearTimeout(a._t); a._t=setTimeout(()=>a.textContent='',6000); }
 function sexoCambio(){ const c=$('hc_i_rep'); if(c&&c.dataset.auto==='1') c.value = v('p_sexo')==='Hombre'?REP_HOMBRE:REP_MUJER; }
+function eeCieAuto(){ const partes=[];
+ const c1=v('ee_cie_codigo'); if(c1 && EE_CIE10_DX[c1]) partes.push(EE_CIE10_DX[c1]);
+ const c2=v('ee_cie_codigo2'); if(c2 && EE_CIE10_DX[c2]) partes.push(EE_CIE10_DX[c2]);
+ $('ee_cie_dx').value=partes.join('\n'); }
 
 const areaTxt=(id,rot,pista,alto)=>`<fieldset><legend>${rot}</legend>${pista?`<p class="pista">${pista}</p>`:''}
  ${FRASES[id]?`<div class="frases" data-para="${id}"></div>`:''}
@@ -944,7 +1007,7 @@ function panel(k){
     ${T('fi_lugarnac','Lugar de nacimiento')}
    </div>
    <div class="g3">
-    ${SL('fi_sangre','Grupo sanguíneo',['O+','O-','A+','A-','B+','B-','AB+','AB-'])}
+    ${SL('fi_sangre','Grupo sanguíneo',['O+','O-','A+','A-','B+','B-','AB+','AB-','Se desconoce'])}
     ${T('fi_lengua','¿Habla o entiende alguna lengua indígena? (indicar cuál)')}
     ${SL('fi_migrante','¿Ha vivido fuera del país más de 6 meses (migrante)?',FI_SINO)}
    </div>
@@ -1324,15 +1387,15 @@ function panel(k){
    return `<fieldset><legend>${rot}</legend><div class="g2 opcCap">
     <div>${items.slice(0,m).map((t,i)=>chk(pre,i,t)).join('')}</div>
     <div>${items.slice(m).map((t,i)=>chk(pre,i+m,t)).join('')}</div></div>${extra||''}</fieldset>`; };
-  const filas=[1,2,3,4,5].map(i=>`<tr>
+  const filas=[1,2,3,4,5,6,7,8,9,10].map(i=>`<tr>
     <td class="rot">${i}.</td>
-    <td><input id="ee_sus${i}_nom"></td>
+    <td>${sel('ee_sus'+i+'_nom',EE_SUSTANCIAS)}</td>
     <td>${sel('ee_sus'+i+'_act',EE_SINO)}</td>
     <td><input id="ee_sus${i}_edad"></td>
     <td>${sel('ee_sus'+i+'_via',EE_VIA)}</td>
     <td>${sel('ee_sus'+i+'_frec',EE_FREC)}</td></tr>`).join('');
   const trat=EE_TRATAMIENTOS.map((t,i)=>`<tr><td class="rot">${t}</td>
-    <td><input id="ee_t${i}_veces"></td><td><input id="ee_t${i}_sus"></td>
+    <td><input id="ee_t${i}_veces"></td><td>${sel('ee_t'+i+'_sus',EE_SUSTANCIAS_TRAT)}</td>
     <td><input id="ee_t${i}_dur"></td><td><input id="ee_t${i}_res"></td></tr>`).join('');
   return `
   <fieldset><legend>Identificación</legend>
@@ -1341,9 +1404,10 @@ function panel(k){
   ${areaTxt('ee_motivo','1.- Motivo de Consulta declarado','Tal y como lo declara la persona, el familiar y/o acompañante. Área obligatoria familiar y/o persona atendida.',110)}
 
   ${areaTxt('ee_salud','2. Condiciones de Salud Mental','Depresión, Ansiedad, Autolesión y comportamiento suicida, otras.',95)}
-  ${areaTxt('ee_salud_a','a) Inicio, frecuencia e intensidad de los síntomas','',95)}
-  ${areaTxt('ee_salud_b','b) Consecuencias asociadas a la condición de salud mental','',95)}
-  ${areaTxt('ee_salud_c','c) Tratamientos Previos','',80)}
+  ${areaTxt('ee_salud_sintomas','a) Síntomas','',95)}
+  ${areaTxt('ee_salud_a','b) Inicio, frecuencia e intensidad de los síntomas','',95)}
+  ${areaTxt('ee_salud_b','c) Consecuencias asociadas a la condición de salud mental','',95)}
+  ${areaTxt('ee_salud_c','d) Tratamientos Previos','',80)}
 
   <fieldset><legend>3. Consumo — obligatoria para usuario de sustancias psicoactivas</legend>
    <p class="pista">Sustancias de consumo en orden cronológico. La primera línea corresponde a la sustancia (droga) de inicio.</p>
@@ -1354,7 +1418,7 @@ function panel(k){
 
   <fieldset><legend>2.1 a 2.7 Sustancia de impacto y motivación al cambio</legend>
    <label for="ee_impacto">2.1 SUSTANCIA (DROGA) DE IMPACTO (Es la que motiva el tratamiento) — Indique cual es:</label>
-   <input id="ee_impacto">
+   ${sel('ee_impacto',EE_IMPACTO)}
    <div class="g2">
     <div><label for="ee_inyectadas">2.2 Alguna vez ha usado sustancias (drogas) inyectadas</label>${sel('ee_inyectadas',EE_SINO)}</div>
     <div><label for="ee_combinado">2.3 Uso combinado de sustancias (drogas)</label>${sel('ee_combinado',EE_SINO)}</div></div>
@@ -1363,7 +1427,8 @@ function panel(k){
    <label for="ee_importancia">2.5 ¿Qué tan importante es para usted atender la condición de salud y /o consumo de sustancias?</label>
    ${sel('ee_importancia',EE_IMPORTANCIA)}
    ${areaTxt('ee_razones','2.6 Mencione las razones por las que es importante para usted atender la condición de salud y /o consumo de sustancias','',95)}
-   ${areaTxt('ee_seguridad','2.7 En una escala de 1 a 10, donde 1 es nada seguro y 10 muy seguro. Mencione qué tan seguro se siente de lograr resolver la condición de salud y/o consumo de sustancias','',70)}
+   <label for="ee_seguridad">2.7 En una escala de 1 a 10, donde 1 es nada seguro y 10 muy seguro. Mencione qué tan seguro se siente de lograr resolver la condición de salud y/o consumo de sustancias</label>
+   ${sel('ee_seguridad',EE_ESCALA10)}
   </fieldset>
 
   <fieldset><legend>2.8 Situación durante el año pasado</legend>
@@ -1402,36 +1467,50 @@ function panel(k){
   ${grupo('eco','En los últimos 12 meses, ¿cuáles son los problemas económicos que le ha traído el consumo de alcohol, tabaco o sustancia?',EE_ECONOMICO,
    `<label for="ee_otrosproblemas">¿Qué otro tipo de problemas le ha provocado el consumo de alcohol/sustancia?</label><textarea id="ee_otrosproblemas" style="min-height:46px"></textarea>`)}
 
-  <fieldset><legend>Períodos de abstinencia</legend>
+  <fieldset><legend>5. Períodos de abstinencia</legend>
    <p class="pista">No obligatoria, sólo en caso de tener periodos de abstinencia. Para usuario de sustancias psicoactivas.</p>
    <label for="ee_abs1">Desde que el consumo de alcohol/drogas se ha convertido en un problema, ¿cuántas veces ha intentado dejar de consumir?</label>
    <input id="ee_abs1">
    ${areaTxt('ee_abs2','¿Por qué se abstuvo en esa(s) ocasión(es)?','',80)}
-   ${areaTxt('ee_abs3','¿Cuál ha sido su mayor periodo de abstinencia (señalar mes y año)?','',70)}
-   ${areaTxt('ee_abs4','Factores de riesgo y de protección que se relacionan a una posible recaída','',95)}</fieldset>
+   ${areaTxt('ee_abs3','¿Cuál ha sido su mayor periodo de abstinencia (señalar mes y año)?','',70)}</fieldset>
+  ${grupo('fp','5.2 Factores de protección que se relacionan a una posible recaída (FP)',EE_FP)}
+  ${grupo('fr','5.2 Factores de riesgo que se relacionan a una posible recaída (FR)',EE_FR)}
 
-  <fieldset><legend>4. Tratamientos Previos y situación actual del mismo</legend>
+  <fieldset><legend>6. Tratamientos Previos y situación actual del mismo</legend>
    <table class="cap">
     <tr><th></th><th>No. De veces</th><th>Sustancia</th><th>Duración (fechas)</th><th>Resultado</th></tr>
     ${trat}</table>
    <label for="ee_modelo">Especificar modelo (residencial / internamiento)</label><input id="ee_modelo">
    ${areaTxt('ee_obs','Observaciones','',80)}</fieldset>
 
-  ${areaTxt('ee_expectativas','5. Expectativas del tratamiento en este momento','Obligatoria.',110)}
-  ${areaTxt('ee_compromiso_p','6. Compromiso de la persona','Obligatoria.',110)}
-  ${areaTxt('ee_compromiso_f','7. Compromiso de la familia','Obligatoria.',110)}
-  ${areaTxt('ee_apariencia','8. Apariencia y actitud de la persona y/o su acompañante','Obligatoria.',95)}
+  ${areaTxt('ee_expectativas','7. Expectativas del tratamiento en este momento','Obligatoria.',110)}
+  ${areaTxt('ee_compromiso_p','8. Compromiso de la persona','Obligatoria.',110)}
+  ${areaTxt('ee_compromiso_f','9. Compromiso de la familia','Obligatoria.',110)}
+  ${grupo('apoyofam','9.1 Cuenta con apoyo de',EE_APOYOFAM)}
+  ${grupo('apar','10. Apariencia y actitud de la persona y/o su acompañante',EE_APARIENCIA)}
+  ${areaTxt('ee_apariencia','10.1 Otras observaciones sobre apariencia y actitud','',70)}
 
-  <fieldset><legend>9. Impresión Diagnóstica (CIE-10) — obligatoria</legend>
+  <fieldset><legend>11. Impresión Diagnóstica (CIE-10) — obligatoria</legend>
    <div class="g2">
-    <div><label for="ee_cie_codigo">a) Código</label><input id="ee_cie_codigo" class="mono"></div>
-    <div><label for="ee_cie_dx">Diagnóstico</label><input id="ee_cie_dx"></div></div>
+    <div><label for="ee_cie_codigo">a) Código — Trastornos por consumo de sustancias (F10-F19)</label>
+     <select id="ee_cie_codigo" onchange="eeCieAuto()"><option value=""></option>${EE_CIE10_SUST.map(o=>`<option>${o}</option>`).join('')}</select></div>
+    <div><label for="ee_cie_codigo2">a) Código — Trastornos de salud mental, primer nivel de atención</label>
+     <select id="ee_cie_codigo2" onchange="eeCieAuto()"><option value=""></option>${EE_CIE10_SM.map(o=>`<option>${o}</option>`).join('')}</select></div></div>
+   <label for="ee_cie_dx">Diagnóstico <span class="pista" style="display:inline">(se completa automáticamente al elegir uno o los dos códigos; puede ajustarse)</span></label>
+   <textarea id="ee_cie_dx" style="min-height:50px"></textarea>
    <label for="ee_cie_obs">b) Observaciones al diagnóstico</label><textarea id="ee_cie_obs" style="min-height:56px"></textarea>
    <label for="ee_pronostico">c) Pronóstico</label>${sel('ee_pronostico',EE_PRONOSTICO)}</fieldset>
 
-  ${areaTxt('ee_plan','12. Plan de tratamiento (Programa de Intervención)','Obligatoria.',95)}
-  ${areaTxt('ee_recom','13. Recomendaciones a la persona y/o a su familia','Obligatoria.',110)}
-  <fieldset><legend>Próxima cita</legend><input type="date" id="ee_cita"></fieldset>`;
+  <fieldset><legend>12. Plan de tratamiento (Programa de Intervención) — obligatoria</legend>
+   <label for="ee_plan_breve">a) Programa de Intervención</label>
+   ${sel('ee_plan_breve',EE_PROGRAMA)}
+   ${areaTxt('ee_plan','Detalle / observaciones del plan','',80)}</fieldset>
+
+  ${grupo('recom','13. Recomendaciones a la persona y/o a su familia',EE_RECOM)}
+  ${areaTxt('ee_recom','13.1 Otras recomendaciones','Obligatoria.',80)}
+  <fieldset><legend>Próxima cita</legend><div class="g2">
+   <div><label for="ee_cita">Fecha</label><input type="date" id="ee_cita"></div>
+   <div><label for="ee_cita_hora">Hora</label><input type="time" id="ee_cita_hora"></div></div></fieldset>`;
  }
 
  if(k==='preconsulta'){
@@ -1771,7 +1850,7 @@ function firmaProfesional(etiqueta){
 const POS={
  exp:[82.5,8.2], nombre:[42.0,18.3], dia:[48.5,24.5], mes:[63.0,24.5], anio:[80.0,24.5],
  domicilio:[26.5,30.7], telefono:[35.5,36.8], emergencia:[10.8,46.2],
- sexoM:[21.8,52.4], sexoH:[29.5,52.4], curp:[47.0,52.4],
+ sexoM:[21.8,52.4], sexoH:[30.8,52.4], curp:[47.0,52.4],
  unidad:[10.8,61.6], clues:[20.8,67.8], consultorio:[70.0,67.8],
  entidad:[24.5,74.0], municipio:[60.0,74.0], localidad:[10.8,82.9]
 };
@@ -2064,9 +2143,10 @@ function construir(){
    ${txt(v('ee_motivo'),'alto')}
    ${bar('2. Condiciones de Salud Mental: (Depresión, Ansiedad, Autolesión y comportamiento suicida, otras).')}
    ${txt(v('ee_salud'))}
-   <tr><td><b>a) Inicio, frecuencia e intensidad de los síntomas:</b>${`<div class="eeTxt">${v('ee_salud_a')?esc(v('ee_salud_a')):'&nbsp;'}</div>`}</td></tr>
-   <tr><td><b>b) Consecuencias asociadas a la condición de salud mental:</b>${`<div class="eeTxt">${v('ee_salud_b')?esc(v('ee_salud_b')):'&nbsp;'}</div>`}</td></tr>
-   <tr><td><b>c) Tratamientos Previos</b>${`<div class="eeTxt">${v('ee_salud_c')?esc(v('ee_salud_c')):'&nbsp;'}</div>`}</td></tr>
+   <tr><td><b>a) Síntomas:</b>${`<div class="eeTxt">${v('ee_salud_sintomas')?esc(v('ee_salud_sintomas')):'&nbsp;'}</div>`}</td></tr>
+   <tr><td><b>b) Inicio, frecuencia e intensidad de los síntomas:</b>${`<div class="eeTxt">${v('ee_salud_a')?esc(v('ee_salud_a')):'&nbsp;'}</div>`}</td></tr>
+   <tr><td><b>c) Consecuencias asociadas a la condición de salud mental:</b>${`<div class="eeTxt">${v('ee_salud_b')?esc(v('ee_salud_b')):'&nbsp;'}</div>`}</td></tr>
+   <tr><td><b>d) Tratamientos Previos</b>${`<div class="eeTxt">${v('ee_salud_c')?esc(v('ee_salud_c')):'&nbsp;'}</div>`}</td></tr>
    ${bar('3. Consumo:',OBLSUS)}
   </table>`;
 
@@ -2085,7 +2165,7 @@ function construir(){
     <td rowspan="2" style="width:22%"><b>Vía de administración</b><span class="eeCol">${EE_VIA.join('<br>')}</span></td>
     <td rowspan="2" style="width:24%"><b>Frecuencia de Consumo Actual</b><span class="eeCol">${EE_FREC.join('<br>')}</span></td></tr>
    <tr><td class="eeCentro"><b>Si</b></td><td class="eeCentro"><b>No</b></td></tr>
-   ${[1,2,3,4,5].map(fila).join('')}
+   ${[1,2,3,4,5,6,7,8,9,10].map(fila).join('')}
   </table>`;
 
   /* 2.1 a 2.7 */
@@ -2156,21 +2236,22 @@ function construir(){
 
   /* Períodos de abstinencia */
   h+=`<table class="ee">
-   ${bar('Períodos de abstinencia:','No Obligatoria, sólo en caso de tener periodos de abstinencia. Para usuario de sustancias psicoactivas')}
+   ${bar('5. Períodos de abstinencia:','No Obligatoria, sólo en caso de tener periodos de abstinencia. Para usuario de sustancias psicoactivas')}
    ${preg('Desde que el consumo de alcohol/drogas se ha convertido en un problema, ¿cuántas veces ha intentado dejar de consumir?',v('ee_abs1'))}
    <tr><td><b>¿Por qué se abstuvo en esa(s) ocasión(es)?</b><div class="eeTxt">${v('ee_abs2')?esc(v('ee_abs2')):'&nbsp;'}</div></td></tr>
    <tr><td><b>¿Cuál ha sido su mayor periodo de abstinencia (señalar mes y año)?</b><div class="eeTxt">${v('ee_abs3')?esc(v('ee_abs3')):'&nbsp;'}</div></td></tr>
-   <tr><td><b>Factores de riesgo y de protección que se relacionan a una posible recaída:</b><div class="eeTxt alto">${v('ee_abs4')?esc(v('ee_abs4')):'&nbsp;'}</div></td></tr>
+   <tr><td><b>5.2 Factores de protección que se relacionan a una posible recaída (FP):</b>${opciones('fp',EE_FP)}</td></tr>
+   <tr><td><b>5.2 Factores de riesgo que se relacionan a una posible recaída (FR):</b>${opciones('fr',EE_FR)}</td></tr>
   </table>`;
 
-  /* 4. Tratamientos previos */
+  /* 6. Tratamientos previos */
   const filaT=i=>`<tr><td>${EE_TRATAMIENTOS[i]}</td>
     <td class="eeCentro"><span class="eeDato">${esc(v('ee_t'+i+'_veces'))}</span></td>
     <td class="eeCentro"><span class="eeDato">${esc(v('ee_t'+i+'_sus'))}</span></td>
     <td class="eeCentro"><span class="eeDato">${esc(v('ee_t'+i+'_dur'))}</span></td>
     <td class="eeCentro"><span class="eeDato">${esc(v('ee_t'+i+'_res'))}</span></td></tr>`;
   h+=`<table class="ee">
-   <tr><td colspan="5" class="eeBarra">4. Tratamientos Previos y situación actual del mismo:</td></tr>
+   <tr><td colspan="5" class="eeBarra">6. Tratamientos Previos y situación actual del mismo:</td></tr>
    <tr><td style="width:36%">&nbsp;</td><td class="eeCentro" style="width:13%"><b>No. De veces</b></td>
     <td class="eeCentro" style="width:17%">Sustancia</td><td class="eeCentro" style="width:17%">Duración (fechas)</td>
     <td class="eeCentro" style="width:17%">Resultado</td></tr>
@@ -2180,18 +2261,22 @@ function construir(){
    <tr><td colspan="5">Observaciones:<div class="eeTxt bajo">${v('ee_obs')?esc(v('ee_obs')):'&nbsp;'}</div></td></tr>
   </table>`;
 
-  /* 5 a 8 */
+  /* 7 a 10 */
   h+=`<table class="ee">
-   ${bar('5. Expectativas del tratamiento en este momento:',OBL)}${txt(v('ee_expectativas'),'alto')}
-   ${bar('6. Compromiso de la persona:',OBL)}${txt(v('ee_compromiso_p'),'alto')}
-   ${bar('7. Compromiso de la familia:',OBL)}${txt(v('ee_compromiso_f'),'alto')}
-   ${bar('8. Apariencia y actitud de la persona y/o su acompañante:',OBL)}${txt(v('ee_apariencia'),'alto')}
+   ${bar('7. Expectativas del tratamiento en este momento:',OBL)}${txt(v('ee_expectativas'),'alto')}
+   ${bar('8. Compromiso de la persona:',OBL)}${txt(v('ee_compromiso_p'),'alto')}
+   ${bar('9. Compromiso de la familia:',OBL)}${txt(v('ee_compromiso_f'),'alto')}
+   <tr><td><b>9.1 Cuenta con apoyo de:</b>${opciones('apoyofam',EE_APOYOFAM)}</td></tr>
+   ${bar('10. Apariencia y actitud de la persona y/o su acompañante:',OBL)}
+   <tr><td>${opciones('apar',EE_APARIENCIA)}
+    <div style="margin-top:1.4mm">Otras observaciones: <span class="eeSubr">${esc(v('ee_apariencia'))}</span></div></td></tr>
   </table>`;
 
-  /* 9. Impresión diagnóstica */
+  /* 11. Impresión diagnóstica */
   h+=`<table class="ee">
-   <tr><td colspan="2" class="eeBarra"><span class="eeObl">${OBL}</span>9. Impresión Diagnóstica(CIE-10):</td></tr>
-   <tr><td style="width:50%"><b>a) Código:</b> <span class="eeDato">${esc(v('ee_cie_codigo'))}</span></td>
+   <tr><td colspan="2" class="eeBarra"><span class="eeObl">${OBL}</span>11. Impresión Diagnóstica(CIE-10):</td></tr>
+   <tr><td style="width:50%"><b>a) Código (consumo de sustancias):</b> <span class="eeDato">${esc(v('ee_cie_codigo'))}</span><br>
+    <b>a) Código (salud mental):</b> <span class="eeDato">${esc(v('ee_cie_codigo2'))}</span></td>
     <td rowspan="2"><b>Diagnóstico:</b><div class="eeTxt bajo">${v('ee_cie_dx')?esc(v('ee_cie_dx')):'&nbsp;'}</div></td></tr>
    <tr><td><b>b) Observaciones al diagnóstico:</b><div class="eeTxt bajo">${v('ee_cie_obs')?esc(v('ee_cie_obs')):'&nbsp;'}</div></td></tr>
    <tr><td colspan="2">&nbsp;</td></tr>
@@ -2200,9 +2285,13 @@ function construir(){
 
   /* 12, 13 y próxima cita */
   h+=`<table class="ee">
-   ${bar('12. Plan de tratamiento (Programa de Intervención):',OBL)}${txt(v('ee_plan'))}
-   ${bar('13. Recomendaciones a la persona y/o a su familia:',OBL)}${txt(v('ee_recom'),'alto')}
-   <tr><td><b>Próxima cita:</b><div class="eeTxt bajo">${v('ee_cita')?esc(fechaLarga(v('ee_cita'))):'&nbsp;'}</div></td></tr>
+   <tr><td class="eeBarra"><span class="eeObl">${OBL}</span>12. Plan de tratamiento (Programa de Intervención):</td></tr>
+   <tr><td><b>a) Programa de Intervención:</b> <span class="eeDato">${esc(v('ee_plan_breve'))}</span></td></tr>
+   <tr><td>${txt(v('ee_plan'))}</td></tr>
+   <tr><td class="eeBarra"><span class="eeObl">${OBL}</span>13. Recomendaciones a la persona y/o a su familia:</td></tr>
+   <tr><td>${opciones('recom',EE_RECOM)}</td></tr>
+   ${txt(v('ee_recom'),'alto')}
+   <tr><td><b>Próxima cita:</b><div class="eeTxt bajo">${v('ee_cita')?esc(fechaLarga(v('ee_cita'))+(v('ee_cita_hora')?' — '+v('ee_cita_hora')+' hrs':'')):'&nbsp;'}</div></td></tr>
   </table>
   <table class="ee">
    <tr><td style="width:30%"><b>Nombre del Profesional:</b></td><td><span class="eeDato">${esc(v('p_prof'))}</span></td></tr>
@@ -3176,6 +3265,14 @@ function vaciar(){ if(!confirm('Se borrará lo capturado en ESTE formato. La fic
  const p=$('pan_'+actual); if(!p)return;
  p.querySelectorAll('input,select,textarea').forEach(e=>{ if(e.type==='checkbox')e.checked=false; else e.value=''; delete e.dataset.auto; });
  ['n','m','hc','rf'].forEach(x=>{if($(x+'_imc'))imc(x);}); aviso('Formato vacío. La ficha del paciente se conservó.'); }
+
+function vaciarTodo(){ if(!confirm('Esto borrará TODO lo capturado en el formulario completo, incluida la ficha del paciente y todas las pestañas. Esta acción no se puede deshacer. ¿Continuar?'))return;
+ document.querySelectorAll('input,select,textarea').forEach(e=>{ if(e.id==='arch')return; if(e.type==='checkbox')e.checked=false; else e.value=''; delete e.dataset.auto; });
+ try{ ES_GENO.nodos=[]; ES_GENO.conexiones=[]; ES_GENO.hist=[]; if(typeof esGenoRender==='function')esGenoRender(); }catch(e){}
+ $('p_unidad').value='Centro Comunitario de Salud Mental y Adicciones Atlacomulco';
+ $('p_clues').value='MCIMB011216';
+ $('p_fecha').value=new Date().toISOString().slice(0,10);
+ aviso('Formulario borrado por completo.'); }
 
 /* ===================== INICIO ===================== */
 montarNav();
